@@ -19,6 +19,7 @@ void sort(int *arr,int n)
      }
      else if(*mid==1)
      {
+
          mid++;
      }
      else if(*mid==2)
