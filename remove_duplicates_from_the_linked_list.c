@@ -37,53 +37,62 @@ void display(Node *head)
     }
 }
 
-void merge(int arr[],int low,int mid,int high)
-{
-    int left=low;
-    int right=mid+1;
-    int temp[high+1];
-    int index=0;
-    while(left<=mid && right<=high)
+void splitList(struct Node* source, struct Node** front, struct Node** back)
+ {
+    struct Node* slow = source;
+    struct Node* fast = source->next;
+
+    while (fast != NULL)
     {
-        if(arr[left]<=arr[right])
+        fast = fast->next;
+        if (fast != NULL)
         {
-            temp[index++]=arr[left];
-            left++;
-        }
-        else
-        {
-            temp[index++]=arr[right];
-            right++;
+            slow = slow->next;
+            fast = fast->next;
         }
     }
-    while(left<=mid)
-    {
-            temp[index++]=arr[left];
-            left++;
-    }
-    while(right<=high)
-    {
-            temp[index++]=arr[right];
-            right++;
-    }
-    for(int i=low;i<=high;i++)
-    {
-        arr[i]=temp[i-low];
-    }
+
+    *front = source;
+    *back = slow->next;
+    slow->next = NULL;
 }
 
-void merge_sort(int arr[],int low,int high)
+struct Node* mergeLists(struct Node* a, struct Node* b)
 {
-    if(low>=high)
+    if (a == NULL) return b;
+    if (b == NULL) return a;
+
+    struct Node* result = NULL;
+
+    if (a->data <= b->data) {
+        result = a;
+        result->next = mergeLists(a->next, b);
+    } else {
+        result = b;
+        result->next = mergeLists(a, b->next);
+    }
+    return result;
+}
+
+
+void mergeSort(struct Node** headRef)
+ {
+    struct Node* head = *headRef;
+    if (head == NULL || head->next == NULL)
     {
         return;
     }
-    int mid=(low+high)/2;
-    merge_sort(arr,low,mid);
-    merge_sort(arr,mid+1,high);
-    merge(arr,low,mid,high);
-}
 
+    struct Node* a;
+    struct Node* b;
+
+    splitList(head, &a, &b);
+
+    mergeSort(&a);
+    mergeSort(&b);
+
+    *headRef = mergeLists(a, b);
+}
 void remove_duplicates(Node *head)
 {
     Node *p,*q;
@@ -118,9 +127,8 @@ int main()
     {
         scanf("%d",&arr[i]);
     }
-
-    merge_sort(arr,0,n-1);
     create(arr,n);
+    mergeSort(&first);
     remove_duplicates(first);
     display(first);
     return 0;
